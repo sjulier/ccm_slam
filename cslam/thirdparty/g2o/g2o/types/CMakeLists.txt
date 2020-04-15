@@ -1,15 +1,16 @@
-ADD_LIBRARY(types ${G2O_LIB_TYPE}
-  types_sba.h
-  types_six_dof_expmap.h
-  types_sba.cpp
-  types_six_dof_expmap.cpp
-  types_seven_dof_expmap.cpp
-  types_seven_dof_expmap.h
-  se3quat.h
-  se3_ops.h
-  se3_ops.hpp
-)
+# Pre-canned types
+add_subdirectory(data)
+add_subdirectory(slam2d)
+add_subdirectory(slam3d)
+add_subdirectory(sba)
+add_subdirectory(sim3)
+add_subdirectory(icp)
+add_subdirectory(sclam2d)
 
-SET_TARGET_PROPERTIES(types PROPERTIES OUTPUT_NAME ${LIB_PREFIX}types)
+add_subdirectory(slam2d_addons)
+add_subdirectory(slam3d_addons)
 
-TARGET_LINK_LIBRARIES(types core)
+option(G2O_BUILD_DEPRECATED_TYPES "Compile the deprecated types" OFF)
+if(G2O_BUILD_DEPRECATED_TYPES)
+  add_subdirectory(deprecated)
+endif()

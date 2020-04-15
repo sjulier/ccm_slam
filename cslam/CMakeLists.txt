@@ -10,17 +10,9 @@ MESSAGE( STATUS "U14 Configuration")
 add_definitions(-DU14_G2O)
 ENDIF()
 
-if($$ENV{ROS_DISTRO} MATCHES "indigo")
-set(KINETIC FALSE)
-MESSAGE(STATUS "compiling for ROS " $ENV{ROS_DISTRO})
-elseif($ENV{ROS_DISTRO} MATCHES "kinetic")
-set(KINETIC TRUE)
-MESSAGE(STATUS "compiling for ROS " $ENV{ROS_DISTRO})
-else()
-message( FATAL_ERROR "ROS distro neither indigo nor kinetic" )
-endif()
 
-set(CMAKE_CXX_FLAGS "-std=c++1y -pthread -pipe ${CMAKE_CXX_FLAGS}")
+set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "-pthread -pipe ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS "-Wall ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS "-Wno-reorder -Wno-sign-compare -Wno-unused-function -Wno-strict-aliasing ${CMAKE_CXX_FLAGS}")
 if(${KINETIC})
@@ -36,9 +28,9 @@ if(${PERFORMANCE_MODE})
     set(CMAKE_CXX_FLAGS "-O3 ${CMAKE_CXX_FLAGS}")
 endif()
 
-if(NOT ${KINETIC})
-    set(CMAKE_CXX_FLAGS "-L${PROJECT_SOURCE_DIR}/thirdparty/opencv-2.4.13/build/lib/ -lopencv_nonfree ${CMAKE_CXX_FLAGS}")
-endif()
+#if(NOT ${KINETIC})
+#    set(CMAKE_CXX_FLAGS "-L${PROJECT_SOURCE_DIR}/thirdparty/opencv-2.4.13/build/lib/ -lopencv_nonfree ${CMAKE_CXX_FLAGS}")
+#endif()
 
 if(${DEBUG_MODE})
 set(CMAKE_CXX_FLAGS "-g ${CMAKE_CXX_FLAGS}")
@@ -69,46 +61,86 @@ endif()
 find_package(catkin REQUIRED COMPONENTS roscpp cv_bridge tf ccmslam_msgs pcl_ros tf_conversions image_transport)
 find_package(cmake_modules REQUIRED)
 
-if(${KINETIC})
-find_package(Eigen3 REQUIRED 3.0)
-else()
+#if(${KINETIC})
+#find_package(Eigen3 REQUIRED 3.0)
+#else()
 find_package(Eigen REQUIRED 3.0)
-endif()
-include_directories(${EIGEN_INCLUDE_DIRS})
-add_definitions(${EIGEN_DEFINITIONS})
+#endif()
+#include_directories(${EIGEN_INCLUDE_DIRS})
+#add_definitions(${EIGEN_DEFINITIONS})
 find_package(PCL 1.3 REQUIRED)
 
-if(NOT ${KINETIC})
-    set(OpenCV_DIR ${PROJECT_SOURCE_DIR}/thirdparty/opencv-2.4.13/build)
-    set(OpenCV_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/thirdparty/opencv-2.4.13/build/include)
-    find_package(OpenCV 2.4.13 REQUIRED)
-endif()
+#if(NOT ${KINETIC})
+#    set(OpenCV_DIR ${PROJECT_SOURCE_DIR}/thirdparty/opencv-2.4.13/build)
+#    set(OpenCV_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/thirdparty/opencv-2.4.13/build/include)
+#    find_package(OpenCV 2.4.13 REQUIRED)
+#endif()
 
-set(THIRDPARTY_LIBS
-  ${PROJECT_SOURCE_DIR}/thirdparty/g2o/lib/libg2o.so
-  ${PROJECT_SOURCE_DIR}/thirdparty/DBoW2/lib/libDBoW2.so
-  ${OpenCV_LIBS}
-)
+
+# Set up external project support
+#include(ExternalProject)
+
+#ExternalProject_Add(DBoW2
+#	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/DBoW2
+#	BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/thirdparty/DBoW2
+#	INSTALL_DIR ${BUILD_INSTALL_PREFIX}
+#	CMAKE_ARGS "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE};-DBENCHMARK_ENABLE_TESTING=OFF;-DCMAKE_INSTALL_PREFIX=${BUILD_INSTALL_PREFIX}" )
+
+add_subdirectory(thirdparty/DBoW2)
+add_subdirectory(thirdparty/g2o)
 
 catkin_package(
    INCLUDE_DIRS include
    CATKIN_DEPENDS ccmslam_msgs
    LIBRARIES ccmslam_lib
-)
+   )
 
+
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+ MESSAGE(CATKIN_PACKAGE_INCLUDE_DESTINATION=${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+ message(catkin_INCLUDE_DIRS=${catkin_INCLUDE_DIRS})
+ message(${CATKIN_DEVEL_PREFIX}/../build/ccm_slam/cslam/thirdparty/g2o)
+   message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+message(======================================================================================)
+ 
 include_directories(
   ${PROJECT_SOURCE_DIR}
   ${PROJECT_SOURCE_DIR}/include
+  ${g2o_SOURCE_DIR}
   ${catkin_INCLUDE_DIRS}
+  # Yuck for now
+  ${CATKIN_DEVEL_PREFIX}/../build/ccm_slam/cslam/thirdparty/g2o
   ${PCL_INCLUDE_DIRS}
   ${Eigen_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
+  ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )
 
 set(EXTERNAL_LIBRARIES
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
-  ${EIGEN3_LIBS}
+  Eigen3::Eigen
 )
 
 ADD_SUBDIRECTORY( include/cslam )
@@ -167,7 +199,7 @@ add_library(ccmslam_lib
 )
 
 add_dependencies(ccmslam_lib ccmslam_msgs_generate_messages_cpp)
-target_link_libraries(ccmslam_lib ${EXTERNAL_LIBRARIES} ${THIRDPARTY_LIBS})
+target_link_libraries(ccmslam_lib ${EXTERNAL_LIBRARIES} DBoW2 core types)
 
 add_executable(ccmslamClientNode
 #node

@@ -45,7 +45,7 @@
 //Thirdparty
 #include <thirdparty/DBoW2/DBoW2/BowVector.h>
 #include <thirdparty/DBoW2/DBoW2/FeatureVector.h>
-#include "thirdparty/g2o/g2o/types/types_seven_dof_expmap.h"
+#include "thirdparty/g2o/g2o/types/sim3/types_seven_dof_expmap.h"
 
 //Msgs
 #include <ccmslam_msgs/MP.h>

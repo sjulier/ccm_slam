@@ -62,9 +62,9 @@ find_package(catkin REQUIRED COMPONENTS roscpp cv_bridge tf ccmslam_msgs pcl_ros
 find_package(cmake_modules REQUIRED)
 
 #if(${KINETIC})
-#find_package(Eigen3 REQUIRED 3.0)
+find_package(Eigen3 REQUIRED 3.0)
 #else()
-find_package(Eigen REQUIRED 3.0)
+#find_package(Eigen REQUIRED 3.0)
 #endif()
 #include_directories(${EIGEN_INCLUDE_DIRS})
 #add_definitions(${EIGEN_DEFINITIONS})
@@ -199,7 +199,7 @@ add_library(ccmslam_lib
 )
 
 add_dependencies(ccmslam_lib ccmslam_msgs_generate_messages_cpp)
-target_link_libraries(ccmslam_lib ${EXTERNAL_LIBRARIES} DBoW2 core types)
+target_link_libraries(ccmslam_lib ${EXTERNAL_LIBRARIES} DBoW2 core types_sba types_sim3)
 
 add_executable(ccmslamClientNode
 #node

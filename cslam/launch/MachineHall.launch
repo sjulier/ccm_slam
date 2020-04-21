@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+ <node type="rviz" name="rviz" pkg="rviz" args="-d $(find ccmslam)/conf/rviz/ccmslam.rviz" />
+ <include file="$(find ccmslam)/launch/Server.launch" />
+ <include file="$(find ccmslam)/launch/EuRoC/Client0_euroc.launch" />
+ <include file="$(find ccmslam)/launch/EuRoC/Client1_euroc.launch" />
+ <node pkg="rosbag" type="play" name="player1" output="screen" args="$(find ccmslam)/../../../MH_01_easy.bag --start 45" launch-prefix="bash -c 'sleep 8; $0 $@' " />
+  <node pkg="rosbag" type="play" name="player2" output="screen" args="$(find ccmslam)/../../../MH_02_easy.bag --start 35 /cam0/image_raw:=/cam0/image_raw1" launch-prefix="bash -c 'sleep 8; $0 $@' " />
+</launch>

@@ -43,13 +43,11 @@ void Optimizer::BundleAdjustmentClient(const vector<kfptr> &vpKFs, const vector<
     vbNotIncludedMP.resize(vpMP.size());
 
     g2o::SparseOptimizer optimizer;
-    g2o::BlockSolver_6_3::LinearSolverType * linearSolver;
+    std::unique_ptr<g2o::BlockSolver_6_3::LinearSolverType> linearSolver;
 
-    linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>();
-
-    g2o::BlockSolver_6_3 * solver_ptr = new g2o::BlockSolver_6_3(linearSolver);
-
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    linearSolver = g2o::make_unique<g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>>();
+  g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(
+											g2o::make_unique<g2o::BlockSolver_6_3>(std::move(linearSolver)));
     optimizer.setAlgorithm(solver);
 
     if(pbStopFlag)
@@ -212,13 +210,13 @@ void Optimizer::BundleAdjustmentClient(const vector<kfptr> &vpKFs, const vector<
 int Optimizer::PoseOptimizationClient(Frame &Frame)
 {
     g2o::SparseOptimizer optimizer;
-    g2o::BlockSolver_6_3::LinearSolverType * linearSolver;
 
-    linearSolver = new g2o::LinearSolverDense<g2o::BlockSolver_6_3::PoseMatrixType>();
 
-    g2o::BlockSolver_6_3 * solver_ptr = new g2o::BlockSolver_6_3(linearSolver);
+    std::unique_ptr<g2o::BlockSolver_6_3::LinearSolverType> linearSolver;
 
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    linearSolver = g2o::make_unique<g2o::LinearSolverDense<g2o::BlockSolver_6_3::PoseMatrixType>>();
+  g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(
+											g2o::make_unique<g2o::BlockSolver_6_3>(std::move(linearSolver)));
     optimizer.setAlgorithm(solver);
 
     int nInitialCorrespondences=0;
@@ -402,13 +400,13 @@ void Optimizer::LocalBundleAdjustmentClient(kfptr pKF, bool* pbStopFlag, mapptr 
 
     // Setup optimizer
     g2o::SparseOptimizer optimizer;
-    g2o::BlockSolver_6_3::LinearSolverType * linearSolver;
 
-    linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>();
 
-    g2o::BlockSolver_6_3 * solver_ptr = new g2o::BlockSolver_6_3(linearSolver);
+        std::unique_ptr<g2o::BlockSolver_6_3::LinearSolverType> linearSolver;
 
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    linearSolver = g2o::make_unique<g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>>();
+  g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(
+											g2o::make_unique<g2o::BlockSolver_6_3>(std::move(linearSolver)));
     optimizer.setAlgorithm(solver);
 
     if(pbStopFlag)
@@ -670,13 +668,11 @@ void Optimizer::MapFusionGBA(mapptr pMap, size_t ClientId, int nIterations, bool
     vbNotIncludedMP.resize(vpMP.size(),false);
 
     g2o::SparseOptimizer optimizer;
-    g2o::BlockSolver_6_3::LinearSolverType * linearSolver;
+    std::unique_ptr<g2o::BlockSolver_6_3::LinearSolverType> linearSolver;
 
-    linearSolver = new g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>();
-
-    g2o::BlockSolver_6_3 * solver_ptr = new g2o::BlockSolver_6_3(linearSolver);
-
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+    linearSolver = g2o::make_unique<g2o::LinearSolverEigen<g2o::BlockSolver_6_3::PoseMatrixType>>();
+  g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(
+											g2o::make_unique<g2o::BlockSolver_6_3>(std::move(linearSolver)));
     optimizer.setAlgorithm(solver);
 
     if(pbStopFlag)
@@ -838,13 +834,13 @@ void Optimizer::MapFusionGBA(mapptr pMap, size_t ClientId, int nIterations, bool
 int Optimizer::OptimizeSim3(kfptr pKF1, kfptr pKF2, std::vector<mpptr> &vpMatches1, g2o::Sim3 &g2oS12, const float th2, bool bFixScale)
 {
     g2o::SparseOptimizer optimizer;
-    g2o::BlockSolverX::LinearSolverType * linearSolver;
+    std::unique_ptr<g2o::BlockSolverX::LinearSolverType> linearSolver;
 
-    linearSolver = new g2o::LinearSolverDense<g2o::BlockSolverX::PoseMatrixType>();
+    linearSolver = g2o::make_unique<g2o::LinearSolverDense<g2o::BlockSolverX::PoseMatrixType>>();
+  g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(
+											g2o::make_unique<g2o::BlockSolverX>(std::move(linearSolver)));
 
-    g2o::BlockSolverX * solver_ptr = new g2o::BlockSolverX(linearSolver);
 
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
     optimizer.setAlgorithm(solver);
 
     // Calibration
@@ -1040,10 +1036,14 @@ void Optimizer::OptimizeEssentialGraphLoopClosure(mapptr pMap, kfptr pLoopKF, kf
     // Setup optimizer
     g2o::SparseOptimizer optimizer;
     optimizer.setVerbose(false);
-    g2o::BlockSolver_7_3::LinearSolverType * linearSolver =
-           new g2o::LinearSolverEigen<g2o::BlockSolver_7_3::PoseMatrixType>();
-    g2o::BlockSolver_7_3 * solver_ptr= new g2o::BlockSolver_7_3(linearSolver);
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+
+    std::unique_ptr<g2o::BlockSolver_7_3::LinearSolverType> linearSolver;
+
+    linearSolver = g2o::make_unique<g2o::LinearSolverEigen<g2o::BlockSolver_7_3::PoseMatrixType>>();
+  g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(
+											g2o::make_unique<g2o::BlockSolver_7_3>(std::move(linearSolver)));
+
+
 
     solver->setUserLambdaInit(1e-16);
     optimizer.setAlgorithm(solver);
@@ -1313,10 +1313,14 @@ void Optimizer::OptimizeEssentialGraphMapFusion(mapptr pMap, kfptr pLoopKF, kfpt
     // Setup optimizer
     g2o::SparseOptimizer optimizer;
     optimizer.setVerbose(false);
-    g2o::BlockSolver_7_3::LinearSolverType * linearSolver =
-           new g2o::LinearSolverEigen<g2o::BlockSolver_7_3::PoseMatrixType>();
-    g2o::BlockSolver_7_3 * solver_ptr= new g2o::BlockSolver_7_3(linearSolver);
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr);
+
+
+    std::unique_ptr<g2o::BlockSolver_7_3::LinearSolverType> linearSolver;
+
+    linearSolver = g2o::make_unique<g2o::LinearSolverEigen<g2o::BlockSolver_7_3::PoseMatrixType>>();
+  g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(
+											g2o::make_unique<g2o::BlockSolver_7_3>(std::move(linearSolver)));
+
 
     solver->setUserLambdaInit(1e-16);
     optimizer.setAlgorithm(solver);
